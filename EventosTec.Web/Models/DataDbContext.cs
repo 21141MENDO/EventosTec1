@@ -16,6 +16,7 @@ namespace EventosTec.Web.Models
         //get servira para hacer conexion y optener la conexion
         public DbSet<Client> clients { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<Events> Events { get; set; }
 
     }
 }
