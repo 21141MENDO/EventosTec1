@@ -11,23 +11,27 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace EventosTec.Web.Controllers
 {
-    [Authorize]
-    public class CategoriesController : Controller
+    [Authorize(Roles = "Admin")]
+    public class ClientsController : Controller
     {
         private readonly DataDbContext _context;
 
-        public CategoriesController(DataDbContext context)
+        public ClientsController(DataDbContext context)
         {
             _context = context;
         }
 
-        // GET: Categories
+        // GET: Clients
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.Include(e => e.Events).ToListAsync());
+            var clients = await _context.Clients
+                .Include(a => a.Events)
+                .Include(a => a.User)
+               .ToListAsync();
+            return View(clients);
         }
 
-        // GET: Categories/Details/5
+        // GET: Clients/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,39 +39,39 @@ namespace EventosTec.Web.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
+            var client = await _context.Clients.Include(u => u.User).Include(e => e.Events)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
+            if (client == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(client);
         }
 
-        // GET: Categories/Create
+        // GET: Clients/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Categories/Create
+        // POST: Clients/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description")] Category category)
+        public async Task<IActionResult> Create(Client client)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(category);
+                _context.Add(client);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(client);
         }
 
-        // GET: Categories/Edit/5
+        // GET: Clients/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -75,22 +79,22 @@ namespace EventosTec.Web.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var client = await _context.Clients.FindAsync(id);
+            if (client == null)
             {
                 return NotFound();
             }
-            return View(category);
+            return View(client);
         }
 
-        // POST: Categories/Edit/5
+        // POST: Clients/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Address")] Client client)
         {
-            if (id != category.Id)
+            if (id != client.Id)
             {
                 return NotFound();
             }
@@ -99,12 +103,12 @@ namespace EventosTec.Web.Controllers
             {
                 try
                 {
-                    _context.Update(category);
+                    _context.Update(client);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.Id))
+                    if (!ClientExists(client.Id))
                     {
                         return NotFound();
                     }
@@ -115,10 +119,10 @@ namespace EventosTec.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(client);
         }
 
-        // GET: Categories/Delete/5
+        // GET: Clients/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -126,30 +130,30 @@ namespace EventosTec.Web.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
+            var client = await _context.Clients
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
+            if (client == null)
             {
                 return NotFound();
             }
 
-            return View(category);
+            return View(client);
         }
 
-        // POST: Categories/Delete/5
+        // POST: Clients/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            _context.Categories.Remove(category);
+            var client = await _context.Clients.FindAsync(id);
+            _context.Clients.Remove(client);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CategoryExists(int id)
+        private bool ClientExists(int id)
         {
-            return _context.Categories.Any(e => e.Id == id);
+            return _context.Clients.Any(e => e.Id == id);
         }
     }
 }

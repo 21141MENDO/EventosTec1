@@ -16,5 +16,7 @@ namespace EventosTec.Web.Models.Entities
         public string Description { get; set; }
         [Display(Name = "Pais")]
         public string Slung { get; set; }
+
+        public ICollection<Event> Events { get; set; }
     }
 }
