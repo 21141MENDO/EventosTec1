@@ -24,7 +24,9 @@ namespace EventosTec.Web.Controllers
         // GET: Cities
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Cities.ToListAsync());
+            var cities = await _context.Cities.Include(a => a.Events).ToListAsync();
+
+            return View(cities);
         }
 
         // GET: Cities/Details/5
@@ -35,7 +37,7 @@ namespace EventosTec.Web.Controllers
                 return NotFound();
             }
 
-            var city = await _context.Cities
+            var city = await _context.Cities.Include(a => a.Events)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (city == null)
             {
@@ -56,7 +58,7 @@ namespace EventosTec.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Slung")] City city)
+        public async Task<IActionResult> Create(City city)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +90,7 @@ namespace EventosTec.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Slung")] City city)
+        public async Task<IActionResult> Edit(int id, City city)
         {
             if (id != city.Id)
             {

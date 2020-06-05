@@ -24,7 +24,8 @@ namespace EventosTec.Web.Controllers
         // GET: Events
         public async Task<IActionResult> Index()
         {
-            var dataDbContext = _context.Events.Include(e => e.City);
+
+            var dataDbContext = _context.Events.Include(a => @a.City);
             return View(await dataDbContext.ToListAsync());
         }
 
@@ -36,22 +37,44 @@ namespace EventosTec.Web.Controllers
                 return NotFound();
             }
 
-            var events = await _context.Events
-                .Include(e => e.City)
+            var @event = await _context.Events
+                .Include(a => a.City)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (events == null)
+            if (@event == null)
             {
                 return NotFound();
             }
 
-            return View(events);
+            return View(@event);
         }
 
         // GET: Events/Create
         public IActionResult Create()
         {
+            var username = User.Identity.Name;
+            var userid = _context.Clients.Where(a => a.User.Email == username).FirstOrDefault();
+            ViewBag.ClientId = userid.Id;
             ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name");
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
             return View();
+        }
+
+        public IActionResult CreateEvent()
+        {
+            ViewBag.ClientId = _context.Clients.Include(u => u.User).ToList();
+            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name");
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateEvent(Event @event)
+        {
+            _context.Add(@event);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
         }
 
         // POST: Events/Create
@@ -59,16 +82,16 @@ namespace EventosTec.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,EventDate,Description,Picture,People,Duration,CityId")] Event events)
+        public async Task<IActionResult> Create(Event @event)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(events);
+                _context.Add(@event);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", events.CityId);
-            return View(events);
+            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", @event.CityId);
+            return View(@event);
         }
 
         // GET: Events/Edit/5
@@ -79,13 +102,13 @@ namespace EventosTec.Web.Controllers
                 return NotFound();
             }
 
-            var events = await _context.Events.FindAsync(id);
-            if (events == null)
+            var @event = await _context.Events.FindAsync(id);
+            if (@event == null)
             {
                 return NotFound();
             }
-            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", events.CityId);
-            return View(events);
+            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", @event.CityId);
+            return View(@event);
         }
 
         // POST: Events/Edit/5
@@ -93,9 +116,9 @@ namespace EventosTec.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EventDate,Description,Picture,People,Duration,CityId")] Event events)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EventDate,Description,Picture,People,Duration,CityId")] Event @event)
         {
-            if (id != events.Id)
+            if (id != @event.Id)
             {
                 return NotFound();
             }
@@ -104,12 +127,12 @@ namespace EventosTec.Web.Controllers
             {
                 try
                 {
-                    _context.Update(events);
+                    _context.Update(@event);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!EventsExists(events.Id))
+                    if (!EventExists(@event.Id))
                     {
                         return NotFound();
                     }
@@ -120,8 +143,8 @@ namespace EventosTec.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", events.CityId);
-            return View(events);
+            ViewData["CityId"] = new SelectList(_context.Cities, "Id", "Name", @event.CityId);
+            return View(@event);
         }
 
         // GET: Events/Delete/5
@@ -132,15 +155,15 @@ namespace EventosTec.Web.Controllers
                 return NotFound();
             }
 
-            var events = await _context.Events
-                .Include(e => e.City)
+            var @event = await _context.Events
+                .Include(a => a.City)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (events == null)
+            if (@event == null)
             {
                 return NotFound();
             }
 
-            return View(events);
+            return View(@event);
         }
 
         // POST: Events/Delete/5
@@ -148,13 +171,13 @@ namespace EventosTec.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var events = await _context.Events.FindAsync(id);
-            _context.Events.Remove(events);
+            var @event = await _context.Events.FindAsync(id);
+            _context.Events.Remove(@event);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool EventsExists(int id)
+        private bool EventExists(int id)
         {
             return _context.Events.Any(e => e.Id == id);
         }
