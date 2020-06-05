@@ -57,7 +57,7 @@ namespace EventosTec.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,EventDate,Description,Picture,People,Duration,CityId")] Events events)
+        public async Task<IActionResult> Create([Bind("Id,Name,EventDate,Description,Picture,People,Duration,CityId")] Event events)
         {
             if (ModelState.IsValid)
             {
@@ -91,7 +91,7 @@ namespace EventosTec.Web.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EventDate,Description,Picture,People,Duration,CityId")] Events events)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EventDate,Description,Picture,People,Duration,CityId")] Event events)
         {
             if (id != events.Id)
             {

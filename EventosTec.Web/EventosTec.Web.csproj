@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20200605012356_Seed.cs" />
+    <Compile Remove="Migrations\20200605012356_Seed.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Views\Home\Contact.cshtml" />
   </ItemGroup>
 

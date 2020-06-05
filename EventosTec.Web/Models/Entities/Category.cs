@@ -17,6 +17,6 @@ namespace EventosTec.Web.Models.Entities
         [MaxLength(300)]
         public string Description { get; set; }
 
-        public ICollection<Events> Events { get; set; }
+        public ICollection<Event> Events { get; set; }
     }
 }

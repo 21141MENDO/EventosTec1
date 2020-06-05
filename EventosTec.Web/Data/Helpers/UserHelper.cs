@@ -1,4 +1,5 @@
-﻿using EventosTec.Web.Models.Entities;
+﻿using EventosTec.Web.Models;
+using EventosTec.Web.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -11,14 +12,28 @@ namespace EventosTec.Web.Data.Helpers
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public UserHelper(UserManager<User>userManager, RoleManager<IdentityRole>roleManager) 
+        public UserHelper(UserManager<User>userManager, RoleManager<IdentityRole>roleManager, SignInManager<User> signInManager) 
         {
             _userManager=userManager;
             _roleManager = roleManager;
+            _signInManager = signInManager;
 
         }
-        public async Task<IdentityResult> addUserAssync(User user, string Password)
+        public async Task<SignInResult> LoginAsync(LoginViewModel model)
+        {
+            return await _signInManager.PasswordSignInAsync(
+            model.Username,
+            model.Password,
+            model.RememberMe,
+            false);
+        }
+        public async Task LogoutAsync()
+        {
+            await _signInManager.SignOutAsync();
+        }
+        public async Task<IdentityResult> AddUserAssync(User user, string Password)
         {
             return await _userManager.CreateAsync(user,Password);
         }
@@ -50,10 +65,17 @@ namespace EventosTec.Web.Data.Helpers
             var user = await _userManager.FindByEmailAsync(email);
                 return user;
         }
- 
+
+        public Task GetUserByEMailAsync(string email)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<bool> IsUserInRoleAsync(User user, string rolName)
         {
             return await _userManager.IsInRoleAsync(user, rolName);
         }
+
+        
     }
 }

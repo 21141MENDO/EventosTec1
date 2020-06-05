@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EventosTec.Web.Models.Entities
 {
-    public class Events
+    public class Event
     {
         public int Id { get; set; }
         [Required]

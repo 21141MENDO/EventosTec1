@@ -7,8 +7,7 @@ namespace EventosTec.Web.Models.Entities
 {
     public class Manager
     {
-        public int id { get; set; }
-
+        public int Id { get; set; }
         public User User { get; set; }
     }
 }
