@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace EventosTec.Web.Models.ModelApi
 {
-    public class ClienteResponse
+    public class ClientResponse
     {
         public int Id { get; set; }
 
@@ -16,6 +16,5 @@ namespace EventosTec.Web.Models.ModelApi
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public ICollection<EventResponse> Events { get; set; }
-
     }
 }

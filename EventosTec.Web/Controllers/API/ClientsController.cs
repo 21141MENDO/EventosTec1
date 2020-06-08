@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EventosTec.Web.Models;
+using EventosTec.Web.Models.Entities;
+using EventosTec.Web.Models.ModelApi;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EventosTec.Web.Models;
-using EventosTec.Web.Models.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace EventosTec.Web.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes =JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ClientsController : ControllerBase
     {
         private readonly DataDbContext _context;
@@ -24,14 +25,14 @@ namespace EventosTec.Web.Controllers.API
             _context = context;
         }
 
-        // GET: api/Clients
+        // GET: api/Categories
         [HttpGet]
         public IEnumerable<Client> GetClients()
         {
             return _context.Clients;
         }
 
-        // GET: api/Clients/5
+        // GET: api/Categories/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetClient([FromRoute] int id)
         {
@@ -40,14 +41,36 @@ namespace EventosTec.Web.Controllers.API
                 return BadRequest(ModelState);
             }
 
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _context.Clients.Include(a => a.Events)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            //-----------------------------------------------------------
+            var response = new ClientResponse //ERROR
+            {
+               // FullName = client.User.FullName,
+               // Description = client.User.Description,
+                Id = client.Id,//1
+                Address = client.Address,//2
+               // Email = client.User.Email,
+              //  PhoneNumber = client.User.PhoneNumber,
+                UserName = client.User.UserName,//3 user
+                Events = client.Events.Select(p => new EventResponse//4 events
+                {
+                   /* Id = p.Id,
+                    Name = p.Name,
+                    Duration = p.Duration,
+                    EventDate = p.EventDate,
+                    People = p.People,
+                    Description = p.Description,*/
+                }).ToList(),
+            };//-------------------------------------------------------
 
             if (client == null)
             {
                 return NotFound();
             }
 
-            return Ok(client);
+            return Ok(response);
         }
 
         // PUT: api/Clients/5
@@ -86,7 +109,6 @@ namespace EventosTec.Web.Controllers.API
         }
 
         // POST: api/Clients
-        [HttpPost]
         public async Task<IActionResult> PostClient([FromBody] Client client)
         {
             if (!ModelState.IsValid)

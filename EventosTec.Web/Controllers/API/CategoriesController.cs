@@ -41,21 +41,22 @@ namespace EventosTec.Web.Controllers.API
                 return BadRequest(ModelState);
             }
 
-            var category = await _context.Categories.Include(a=>a.Events)
-                .FirstOrDefaultAsync(a=>a.Id==id);
+            var category = await _context.Categories.Include(a => a.Events)
+                .FirstOrDefaultAsync(a => a.Id == id);
 
             var response = new CategoryResponse
             {
                 Description = category.Description,
                 Name = category.Name,
                 Id = category.Id,
-                Events = category.Events.Select(p=>new EventResponse { 
-                Id=p.Id,
-                Name=p.Name,
-                Duration=p.Duration,
-                EventDate=p.EventDate,
-                People=p.People,
-                Description=p.Description,
+                Events = category.Events.Select(p => new EventResponse
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Duration = p.Duration,
+                    EventDate = p.EventDate,
+                    People = p.People,
+                    Description = p.Description,
                 }).ToList(),
             };
 

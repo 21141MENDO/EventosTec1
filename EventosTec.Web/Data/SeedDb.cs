@@ -12,7 +12,7 @@ namespace EventosTec.Web.Data
     {
         private readonly DataDbContext dc;
         private readonly IUserHelper uh;
-        public SeedDb(DataDbContext db, IUserHelper iuh)
+        public SeedDb(DataDbContext db,IUserHelper iuh)
         {
             dc = db;
             uh = iuh;
@@ -22,9 +22,9 @@ namespace EventosTec.Web.Data
         {
             await dc.Database.EnsureCreatedAsync();
             await CheckRoles();
-            var manager = await CheckUserAsync("Juan", "Hernandez", "admin@adminmail.com", "664 123 45 67",
+            var manager = await CheckUserAsync("Antonio", "Mendoza", "admin@adminmail.com", "664 345 87 77", 
                  "Admin");
-            var customer = await CheckUserAsync("Juan", "Hernandez", "cliente@clientemail.com", "664 987 65 43",
+            var customer = await CheckUserAsync("Anronio", "Mendoza", "cliente@clientemail.com", "664 987 65 43", 
                  "Client");
             await CheckManagerAsync(manager);
             await CheckClientAsync(customer);
@@ -54,24 +54,25 @@ namespace EventosTec.Web.Data
             }
         }
 
-        private async Task<User> CheckUserAsync(string firstName, string lastName, string email,
+        private async Task<User> CheckUserAsync(string firstName,string lastName,string email,
             string phone, string rol)
         {
-            var user = await uh.GetUserByEmailAsync(email);
-            if (user == null)
+            var user = await uh.GetUserByEMailAsync(email);
+            if (user==null)
             {
                 user = new User
                 {
-                    FullName = firstName + " " + lastName,
-                    Email = email,
-                    UserName = email,
-                    PhoneNumber = phone,
+                    FullName = firstName +" "+ lastName,
+                    Email=email,
+                    UserName=email,
+                    PhoneNumber=phone,
                 };
 
                 await uh.AddUserAssync(user, "admin1234");
-                await uh.AddUserToRoleAsync(user, rol);
+                await uh.AddUserToRoleAsync(user,rol);
             }
             return user;
         }
+    
     }
 }

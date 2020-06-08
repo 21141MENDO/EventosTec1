@@ -7,11 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EventosTec.Web.Models;
 using EventosTec.Web.Models.Entities;
+using EventosTec.Web.Models.ModelApi;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace EventosTec.Web.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CitiesController : ControllerBase
     {
         private readonly DataDbContext _context;
@@ -27,7 +31,7 @@ namespace EventosTec.Web.Controllers.API
         {
             return _context.Cities;
         }
-
+        //-------------------AGREGADO-------------------------------
         // GET: api/Cities/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCity([FromRoute] int id)
@@ -37,15 +41,35 @@ namespace EventosTec.Web.Controllers.API
                 return BadRequest(ModelState);
             }
 
-            var city = await _context.Cities.FindAsync(id);
-
+            var city = await _context.Cities.Include(a => a.Events)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            var response = new CityResponse
+            {
+                Description = city.Description,
+                Name = city.Name,
+                Id = city.Id,
+                Slung = city.Slung,
+                Events = city.Events.Select(
+                    p => new EventResponse
+                    {
+                        Description = p.Description,
+                        Name = p.Name,
+                        Id = p.Id,
+                        Duration = p.Duration,
+                        People = p.People,
+                        Picture = p.Picture,
+                        EventDate = p.EventDate
+                    }
+                    ).ToList(),
+            };
             if (city == null)
             {
                 return NotFound();
             }
 
-            return Ok(city);
+            return Ok(response);
         }
+        //----------------------------------------------------------------
 
         // PUT: api/Cities/5
         [HttpPut("{id}")]

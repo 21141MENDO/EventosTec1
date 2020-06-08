@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using EventosTec.Web.Data;
 using EventosTec.Web.Data.Helpers;
@@ -13,8 +14,10 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace EventosTec.Web
 {
@@ -36,29 +39,38 @@ namespace EventosTec.Web
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
             services.AddIdentity<User, IdentityRole>(
-          cfg => {
-              cfg.User.RequireUniqueEmail = true;
-              cfg.Password.RequireDigit = false;
-              cfg.Password.RequiredUniqueChars = 0;
-              cfg.Password.RequireLowercase = false;
-              cfg.Password.RequireNonAlphanumeric = false;
-              cfg.Password.RequireUppercase = false;
-          }).AddEntityFrameworkStores<DataDbContext>();
+                cfg => {
+                    cfg.User.RequireUniqueEmail = true;
+                    cfg.Password.RequireDigit = false;
+                    cfg.Password.RequiredUniqueChars = 0;
+                    cfg.Password.RequireLowercase = false;
+                    cfg.Password.RequireNonAlphanumeric = false;
+                    cfg.Password.RequireUppercase = false;
+                }).AddEntityFrameworkStores<DataDbContext>();
 
             services.AddScoped<IUserHelper, UserHelper>();
-
             services.AddDbContext<DataDbContext>(cfg =>
             {
                 cfg.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
-
             services.AddTransient<SeedDb>();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            //-------------Activacion de Servicio de Token-------------------------------------------
+            services.AddAuthentication()
+                .AddCookie()
+                .AddJwtBearer(cfg => {
+                    cfg.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = Configuration["Tokens:Issuer"],
+                        ValidAudience = Configuration["Tokens:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"]))
+                    };
+                });
+            //---------------------------------------------------------
 
-            services.AddDbContext<EventosTecWebContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("EventosTecWebContext")));
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

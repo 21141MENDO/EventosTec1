@@ -8,15 +8,17 @@ using System.Threading.Tasks;
 
 namespace EventosTec.Web.Data.Helpers
 {
-    public interface  IUserHelper
+    public interface IUserHelper
     {
-        Task<User> GetUserByEmailAsync(string email);
+        Task<User> GetUserByEMailAsync(string email);
         Task<IdentityResult> AddUserAssync(User user, string Password);
-        Task AddUserToRoleAsync(User user, string rolName);
-        Task<bool> IsUserInRoleAsync(User user, string rolName);
+        Task CheckRoleAsync(string roleName);
+        Task AddUserToRoleAsync(User user, string roleName);
+
+        Task<bool> IsUserInRoleAsync(User user, string roleName);
+
         Task<SignInResult> LoginAsync(LoginViewModel model);
         Task LogoutAsync();
-        Task GetUserByEMailAsync(string email);
-        Task CheckRoleAsync(string v);
+        Task<SignInResult> ValidatePasswordAsync(User user, string password);
     }
 }
